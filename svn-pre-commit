@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Facter runs a bunch of sub-commands that need a path
+export PATH="/bin"
+
+REPOS="$1"
+TXN="$2"
+SVNLOOK="/usr/bin/svnlook"
+
+ERRNUM=0
+
+## this disaster of a commandline finds the added or updated files (names of which end in .pp)
+for changedfile in $( ${SVNLOOK} changed -t "$TXN" "$REPOS" | egrep '^[AU] .*\.pp$' | sed 's/^[AU][ \t]*//g' ) ; do
+        tempfile=$( mktemp /tmp/puppet-svn-pre-commit-hook.XXXXXXXXX.pp )
+        ${SVNLOOK} cat -t "$TXN" "$REPOS" "$changedfile" > ${tempfile}
+        /usr/bin/puppet --parseonly --color=false ${tempfile} 1>&2
+        ERRNUM=$(( ${ERRNUM} + $? ))
+        rm ${tempfile}
+done
+
+exit ${ERRNUM}
+
