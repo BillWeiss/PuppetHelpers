@@ -1,1 +1,10 @@
 Various helper scripts for my Puppet environment at work.
+
+svn-pre-commit:
+    My Puppet configuration is in an SVN server, and I wanted to make sure
+    to not nuke my running configuration with a bad check-in (the need for
+    this came about 5 minutes after I gave someone write access).  I've
+    just dropped it in /var/svn/puppet/hooks/pre-commit.
+
+    It runs puppet --parseonly on each committed .pp file to see if there
+    are problems.
