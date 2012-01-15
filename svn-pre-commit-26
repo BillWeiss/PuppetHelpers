@@ -1,0 +1,32 @@
+#!/bin/sh
+# SVN pre-commit hook to check Puppet syntax for .pp files
+# written by Bill Weiss <bweiss@backstopsolutions.com>
+# Taken almost directly from http://projects.puppetlabs.com/projects/1/wiki/Puppet_Version_Control ,
+# modified for 2.7 syntax ("puppet parser validate" instead of "puppet --parseonly")
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+REPOS="$1"
+TXN="$2"
+tmpfile=`mktemp`
+export HOME=/
+SVNLOOK=/usr/bin/svnlook
+$SVNLOOK changed -t "$TXN" "$REPOS" | awk '/^[^D].*\.pp$/ {print $2}' | while read line
+do
+    $SVNLOOK cat -t "$TXN" "$REPOS" "$line" > $tmpfile
+    if [ $? -ne 0 ]
+    then
+        echo "Warning: Failed to checkout $line" >&2
+    fi
+    puppet parser validate $tmpfile >&2
+    if [ $? -ne 0 ]
+    then
+        echo "Puppet syntax error in $line." >&2
+        exit 2
+    fi
+done
+res=$?
+rm -f $tmpfile
+if [ $res -ne 0 ]
+then
+    exit $res
+fi
+
