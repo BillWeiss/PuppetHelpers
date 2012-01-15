@@ -8,3 +8,13 @@ svn-pre-commit:
 
     It runs puppet --parseonly on each committed .pp file to see if there
     are problems.
+
+    This worked great for 0.25, but turns out to be almost a clone of the
+    provided
+    http://projects.puppetlabs.com/projects/1/wiki/Puppet_Version_Control
+    pre-commit hook.  You should use theirs now, it's better tested
+    (though, really, they're freaking close).
+
+svn-pre-commit-26:
+    Strangely, I haven't found a pre-commit hook for 2.6 and later on
+    their site.  It's a trivial change, but maybe it will help someone.
