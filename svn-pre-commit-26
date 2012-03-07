@@ -16,7 +16,7 @@ do
     then
         echo "Warning: Failed to checkout $line" >&2
     fi
-    puppet parser validate $tmpfile >&2
+    puppet parser validate --color false $tmpfile >&2
     if [ $? -ne 0 ]
     then
         echo "Puppet syntax error in $line." >&2
