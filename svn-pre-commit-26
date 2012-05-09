@@ -9,17 +9,23 @@ TXN="$2"
 tmpfile=`mktemp`
 export HOME=/
 SVNLOOK=/usr/bin/svnlook
-$SVNLOOK changed -t "$TXN" "$REPOS" | awk '/^[^D].*\.pp$/ {print $2}' | while read line
+$SVNLOOK changed -t "$TXN" "$REPOS" | awk '/^[^D].*\.(erb|pp)$/ {print $2}' | while read line
 do
     $SVNLOOK cat -t "$TXN" "$REPOS" "$line" > $tmpfile
     if [ $? -ne 0 ]
     then
         echo "Warning: Failed to checkout $line" >&2
+        exit 1
     fi
-    puppet parser validate --color false $tmpfile >&2
-    if [ $? -ne 0 ]
+    case $line in
+        *.pp )
+            puppet parser validate --color false $tmpfile >&2 ;;
+        *.erb )
+            erb -x -T '-' -P $tmpfile | ruby -c >&2 ;;
+    esac
+    if [ "$?" -ne 0 ] 
     then
-        echo "Puppet syntax error in $line." >&2
+        echo "Parse error in $line" >&2
         exit 2
     fi
 done
