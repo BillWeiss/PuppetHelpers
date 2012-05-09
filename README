@@ -17,4 +17,5 @@ svn-pre-commit:
 
 svn-pre-commit-26:
     Strangely, I haven't found a pre-commit hook for 2.6 and later on
-    their site.  It's a trivial change, but maybe it will help someone.
+    their site.  I've hacked on it a bit at this point: it checks .erb
+    files as well as .pp.
